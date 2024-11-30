@@ -34,7 +34,7 @@ jobs:
 
     - name: Upload Combined CSV as Artifact
       if: steps.changes.outputs.csv-files == 'true'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: combined_csv
         path: db_folder/combined.csv
