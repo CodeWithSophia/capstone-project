@@ -1,0 +1,40 @@
+name: Automate CSV Integration
+
+on:
+  push:
+    paths:
+      - "datahub/*.csv" # Trigger only for changes in CSV files in the datahub folder
+
+jobs:
+  integrate-csv:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Filter CSV changes
+      uses: dorny/paths-filter@v3
+      id: changes
+      with:
+        filters: |
+          csv-files:
+            - 'datahub/*.csv' # Monitor all CSV files in the datahub folder
+
+    - name: Combine CSV Files
+      if: steps.changes.outputs.csv-files == 'true'
+      run: |
+        echo "Changes detected in datahub folder. Starting CSV integration..."
+        chmod +x integrate_data.sh
+        ./integrate_data.sh
+
+    - name: Notify CSV Integration Success
+      if: steps.changes.outputs.csv-files == 'true'
+      run: echo "CSV files have been successfully integrated."
+
+    - name: Upload Combined CSV as Artifact
+      if: steps.changes.outputs.csv-files == 'true'
+      uses: actions/upload-artifact@v3
+      with:
+        name: combined_csv
+        path: db_folder/combined.csv
